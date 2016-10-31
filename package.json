@@ -20,6 +20,10 @@
   },
   "homepage": "https://github.com/tejashah88/alexa-verifier-middleware#readme",
   "dependencies": {
-    "alexa-verifier": "0.0.5"
+    "crypto": "0.0.3",
+    "openssl-cert-tools": "^1.2.0",
+    "request": "^2.76.0",
+    "url": "^0.11.0",
+    "validator": "^6.1.0"
   }
 }
