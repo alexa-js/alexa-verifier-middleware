@@ -1,6 +1,5 @@
-[![NPM Stats](https://nodei.co/npm/alexa-verifier-middleware.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/alexa-verifier-middleware/)
+[![NPM](https://nodei.co/npm/alexa-verifier-middleware.png)](https://www.npmjs.com/package/alexa-verifier-middleware/)
 
-![NPM](https://img.shields.io/npm/dt/alexa-verifier-middleware.svg)
 [![dependencies Status](https://david-dm.org/tejashah88/alexa-verifier-middleware/status.svg)](https://david-dm.org/tejashah88/alexa-verifier-middleware)
 ![NPM Version](https://img.shields.io/npm/v/alexa-verifier-middleware.svg)
 
@@ -19,12 +18,31 @@ npm install alexa-verifier-middleware --save
 # Mentions
 * [mreinstein](https://github.com/mreinstein) for his [alexa-verifier](https://github.com/mreinstein/alexa-verifier) module, which allows you to verify any Amazon requests from any web service
 
+# Note about other middleware usage!
+Before you read the code example, there should be one thing to note. If you are using any other middleware, you should load this one before any others. Otherwise, this middleware will not be able to read the request.
+
+Let's say you are making an Alexa skill with [express](https://www.npmjs.com/package/express) and you need to use the [body-parser](https://www.npmjs.com/package/body-parser) middleware module. Make sure that this middleware **loads first**
+```javascript
+var express = require('express');
+var bodyParser = require('body-parser');
+var avm = require('alexa-verifier-middleware');
+var app = express();
+
+// note that the 'avm' middleware is loaded first
+app.use(avm());
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json());
+```
+
+If there is another middleware that says it needs to load first, and you are not sure which placement is better, let me know by opening an issue and I'll do some extensive testing before reporting which middleware to load first.
+
 # Code Example
 
 ```javascript
+var express = require('express');
 var avm = require('alexa-verifier-middleware');
-...
 var app = express();
+
 app.use(avm());
 ```
 
