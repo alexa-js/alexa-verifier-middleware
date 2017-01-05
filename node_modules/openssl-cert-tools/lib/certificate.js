@@ -30,7 +30,7 @@ module.exports = {
     // Catch stderr and search for possible errors
     openssl.stderr.on('data', function (out) {
       // Search for possible errors in stderr
-      var errorRegexp = /(Connection refused)|(Can't assign requested address)/;
+      var errorRegexp = /(Connection refused)|(Can't assign requested address)|(gethostbyname failure)/;
       var regexTester = errorRegexp.test(out);
 
       // If match, raise error

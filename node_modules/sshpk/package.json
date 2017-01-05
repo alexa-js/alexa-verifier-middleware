@@ -16,7 +16,6 @@
   "_from": "sshpk@>=1.7.0 <2.0.0",
   "_id": "sshpk@1.10.1",
   "_inCache": true,
-  "_installable": true,
   "_location": "/sshpk",
   "_nodeVersion": "0.12.15",
   "_npmOperationalInternal": {

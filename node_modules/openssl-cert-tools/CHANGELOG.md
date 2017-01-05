@@ -1,3 +1,11 @@
+<a name="1.2.1"></a>
+# 1.2.1 (2016-11-16)
+
+* Move chai and mocha to devDependencies ([PR#4](https://github.com/frdmn/openssl-cert-tools/pull/4)) (Thanks @[boneskull](https://github.com/boneskull))
+* Update NPM packages ([426d870](https://github.com/frdmn/openssl-cert-tools/commit/426d870))
+* Add new possible error when hostname can't be found ([1f769e8](https://github.com/frdmn/openssl-cert-tools/commit/1f769e8))
+* Version bump to 1.2.1 ([7d4a517](https://github.com/frdmn/openssl-cert-tools/commit/7d4a517))
+
 <a name="1.2.0"></a>
 # 1.2.0 (2015-11-17)
 
