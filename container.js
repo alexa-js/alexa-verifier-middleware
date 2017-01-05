@@ -1,6 +1,12 @@
 var verifier = require('alexa-verifier');
 
-var avm = module.exports = function() {
+// the alexa API calls specify an HTTPS certificate that must be validated.
+// the validation uses the request's raw POST body which isn't available from
+// the body parser module. so we look for any requests that include a
+// signaturecertchainurl HTTP request header, parse out the entire body as a
+// text string, and set a flag on the request object so other body parser
+// middlewares don't try to parse the body again
+module.exports = function alexaVerifierMiddleware() {
 	return function(req, res, next) {
 		if (!req.headers.signaturecertchainurl) {
 			return next();
@@ -38,4 +44,4 @@ var avm = module.exports = function() {
 			});
 		});
 	};
-};
+}

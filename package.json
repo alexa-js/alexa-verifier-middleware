@@ -1,7 +1,7 @@
 {
   "name": "alexa-verifier-middleware",
   "version": "0.0.6",
-  "description": "A simple middleware wrapper for the 'alexa-verifier' node module.",
+  "description": "An expressjs middleware wrapper for 'alexa-verifier'.",
   "main": "container.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -21,6 +21,6 @@
   },
   "homepage": "https://github.com/tejashah88/alexa-verifier-middleware#readme",
   "dependencies": {
-    "alexa-verifier": "0.0.5"
+    "alexa-verifier": "^0.0.5"
   }
 }
