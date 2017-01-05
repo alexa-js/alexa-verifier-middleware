@@ -6,7 +6,7 @@ var verifier = require('alexa-verifier');
 // signaturecertchainurl HTTP request header, parse out the entire body as a
 // text string, and set a flag on the request object so other body parser
 // middlewares don't try to parse the body again
-var avm = module.exports = function() {
+module.exports = function alexaVerifierMiddleware() {
 	return function(req, res, next) {
 		if (!req.headers.signaturecertchainurl) {
 			return next();
@@ -44,4 +44,4 @@ var avm = module.exports = function() {
 			});
 		});
 	};
-};
+}
