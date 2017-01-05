@@ -1,7 +1,7 @@
 [![NPM Stats](https://nodei.co/npm/alexa-verifier-middleware.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/alexa-verifier-middleware/)
 
 ![NPM](https://img.shields.io/npm/dt/alexa-verifier-middleware.svg)
-![DavidDM](https://david-dm.org/tejashah88/alexa-verifier-middleware.svg)
+[![dependencies Status](https://david-dm.org/tejashah88/alexa-verifier-middleware/status.svg)](https://david-dm.org/tejashah88/alexa-verifier-middleware)
 ![NPM Version](https://img.shields.io/npm/v/alexa-verifier-middleware.svg)
 
 # alexa-verifier-middleware
