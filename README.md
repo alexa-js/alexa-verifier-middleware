@@ -50,6 +50,6 @@ If there is another middleware that says it needs to load first, and you are not
 * [mreinstein](https://github.com/mreinstein) for his [alexa-verifier](https://github.com/mreinstein/alexa-verifier) module, which allows you to verify any Amazon requests from any web service
 
 ### License
-Copyright (c) 2017 Tejas Shah
+Copyright (c) 2016-2017 Tejas Shah
 
-MIT License, see [LICENSE](LICENSE.md) for details.
+MIT License, see [LICENSE](https://tejashah88.mit-license.org/2016-2017) for details.
