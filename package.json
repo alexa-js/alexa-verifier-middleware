@@ -21,6 +21,6 @@
   },
   "homepage": "https://github.com/tejashah88/alexa-verifier-middleware#readme",
   "dependencies": {
-    "alexa-verifier": "^0.1.2"
+    "alexa-verifier": "^0.1.3"
   }
 }
