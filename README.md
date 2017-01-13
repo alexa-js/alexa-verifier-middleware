@@ -46,6 +46,30 @@ app.use(bodyParser.json());
 If there is another middleware that says it needs to load first, and you are not sure which placement is better, let me know by opening an issue and I'll do some extensive testing before reporting which middleware to load first.
 
 
+### Extra options
+
+* `strictHeaderCheck` - allows for strict handling of incoming requests to make sure they only come from Amazon's servers
+    
+    Example:
+
+    ```javascript
+    var express = require('express');
+    var avm = require('alexa-verifier-middleware');
+    var app = express();
+    
+    var alexaRouter = express.Router();
+    alexaRouter.use(avm({ strictHeaderCheck: true }));
+    
+    // Routes that handle alexa traffic are now attached here.
+    // Since this is attached to a router mounted at /alexa,
+    // this endpoint will be accessible at /alexa/weather_info
+    alexaRouter.get('/weather_info', function(req, res) { ... });
+    
+    app.use('/alexa', alexaRouter);
+    
+    app.listen(3000)
+    ```
+
 ### Mentions
 * [mreinstein](https://github.com/mreinstein) for his [alexa-verifier](https://github.com/mreinstein/alexa-verifier) module, which allows you to verify any Amazon requests from any web service
 

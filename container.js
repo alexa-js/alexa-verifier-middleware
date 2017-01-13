@@ -6,10 +6,16 @@ var verifier = require('alexa-verifier');
 // signaturecertchainurl HTTP request header, parse out the entire body as a
 // text string, and set a flag on the request object so other body parser
 // middlewares don't try to parse the body again
-module.exports = function alexaVerifierMiddleware() {
+module.exports = function alexaVerifierMiddleware(options) {
 	return function(req, res, next) {
 		if (!req.headers.signaturecertchainurl) {
-			return next();
+			if (typeof options.strictHeaderCheck !== 'undefined' && options.strictHeaderCheck === true) {
+				// respond with a 401 error
+				res.status(401).json({ status: 'failure', reason: 'The signaturecertchainurl HTTP request header is missing!' });
+			} else {
+				// ignore it
+				return next();
+			}
 		}
 
 		// mark the request body as already having been parsed so it's ignored by
