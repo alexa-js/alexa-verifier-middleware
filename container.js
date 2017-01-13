@@ -9,13 +9,13 @@ var verifier = require('alexa-verifier');
 module.exports = function alexaVerifierMiddleware(options) {
 	return function(req, res, next) {
 		if (!req.headers.signaturecertchainurl) {
-			// by default, strict header checking will be enforced
-			if (typeof options.strictHeaderCheck !== 'undefined' && options.strictHeaderCheck === false) {
-				// ignore the check
-				return next();
-			} else {
+			// by default, strict header checking will not be enforced
+			if (typeof options !== 'undefined' && typeof options.strictHeaderCheck !== 'undefined' && options.strictHeaderCheck === true) {
 				// respond with a 401 error
 				res.status(401).json({ status: 'failure', reason: 'The signaturecertchainurl HTTP request header is invalid!' });
+			} else {
+				// ignore the check
+				return next();
 			}
 		}
 

@@ -48,7 +48,7 @@ If there is another middleware that says it needs to load first, and you are not
 
 ### Extra options
 
-* `strictHeaderCheck` - allows for strict handling of incoming requests to make sure they only come from Amazon's servers
+* `strictHeaderCheck` - Allows for strict handling of incoming requests to make sure they only come from Amazon's servers. By default this check will **not** be enforced.
     
     Example:
 
