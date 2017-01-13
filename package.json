@@ -1,6 +1,6 @@
 {
   "name": "alexa-verifier-middleware",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "An expressjs middleware wrapper for 'alexa-verifier'.",
   "main": "container.js",
   "scripts": {
