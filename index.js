@@ -43,7 +43,6 @@ module.exports = function alexaVerifierMiddleware(options) {
 
 			verifier(cert_url, signature, requestBody, function(er) {
 				if (er) {
-					console.error('error validating the alexa cert:', er);
 					res.status(401).json({ status: 'failure', reason: er });
 				} else {
 					next();
