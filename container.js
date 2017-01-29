@@ -12,7 +12,7 @@ module.exports = function alexaVerifierMiddleware(options) {
 			// by default, strict header checking will not be enforced
 			if (typeof options !== 'undefined' && typeof options.strictHeaderCheck !== 'undefined' && options.strictHeaderCheck === true) {
 				// respond with a 401 error
-				res.status(401).json({ status: 'failure', reason: 'The signaturecertchainurl HTTP request header is invalid!' });
+				return res.status(401).json({ status: 'failure', reason: 'The signaturecertchainurl HTTP request header is invalid!' });
 			} else {
 				// ignore the check
 				return next();
