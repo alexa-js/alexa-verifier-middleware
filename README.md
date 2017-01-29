@@ -1,5 +1,7 @@
 # alexa-verifier-middleware
 
+[![Build Status](https://travis-ci.org/alexa-js/alexa-verifier-middleware.svg?branch=master)](https://travis-ci.org/alexa-js/alexa-verifier-middleware)
+
 [![NPM](https://nodei.co/npm/alexa-verifier-middleware.png)](https://www.npmjs.com/package/alexa-verifier-middleware/)
 
 [![dependencies Status](https://david-dm.org/tejashah88/alexa-verifier-middleware/status.svg)](https://david-dm.org/tejashah88/alexa-verifier-middleware)
