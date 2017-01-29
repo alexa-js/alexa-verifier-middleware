@@ -51,12 +51,44 @@ test('fail strict headerCheck missing signaturecertchainurl header', function(t)
 })
 
 
-test('pass strict headerCheck', function(t) {
+test('fail strict headerCheck missing signature header', function(t) {
   var middleware = verifier({ strictHeaderCheck: true })
 
   var mockReq = {
     headers: {
       signaturecertchainurl: 'some-bogus-value'
+    },
+    on: function(eventName, callback) { }
+  }
+
+  var mockRes = {
+    status: function(httpCode) {
+      t.equal(httpCode, 401)
+      return {
+        json: function(input) {
+          t.deepEqual(input, { status: 'failure', reason: 'The signature HTTP request header is invalid!' })
+        }
+      }
+    }
+  }
+
+  var nextInvocationCount = 0
+  var mockNext = function() { nextInvocationCount++ }
+
+  middleware(mockReq, mockRes, mockNext)
+
+  t.equal(nextInvocationCount, 0)
+  t.end()
+})
+
+
+test('pass strict headerCheck', function(t) {
+  var middleware = verifier({ strictHeaderCheck: true })
+
+  var mockReq = {
+    headers: {
+      signaturecertchainurl: 'some-bogus-value',
+      signature: 'another-dud-value'
     },
     on: function(eventName, callback) { }
   }
@@ -82,7 +114,8 @@ test('fail on invalid JSON body', function(t) {
 
   var mockReq = {
     headers: {
-      signaturecertchainurl: 'some-bogus-value'
+      signaturecertchainurl: 'some-bogus-value',
+      signature: 'heres-another-arbitrary-value'
     },
     on: function(eventName, callback) {
       if (eventName === 'data') dataCallback = callback

@@ -8,11 +8,24 @@ var verifier = require('alexa-verifier');
 // middlewares don't try to parse the body again
 module.exports = function alexaVerifierMiddleware(options) {
 	return function(req, res, next) {
+		var strictHeaderCheck = (typeof options !== 'undefined' && typeof options.strictHeaderCheck !== 'undefined' && options.strictHeaderCheck === true);
+
 		if (!req.headers.signaturecertchainurl) {
-			// by default, strict header checking will not be enforced
-			if (typeof options !== 'undefined' && typeof options.strictHeaderCheck !== 'undefined' && options.strictHeaderCheck === true) {
+			// by default, strict header checking isn't enforced
+			if (strictHeaderCheck) {
 				// respond with a 401 error
 				return res.status(401).json({ status: 'failure', reason: 'The signaturecertchainurl HTTP request header is invalid!' });
+			} else {
+				// ignore the check
+				return next();
+			}
+		}
+
+		if (!req.headers.signature) {
+			// by default, strict header checking isn't enforced
+			if (strictHeaderCheck) {
+				// respond with a 401 error
+				return res.status(401).json({ status: 'failure', reason: 'The signature HTTP request header is invalid!' });
 			} else {
 				// ignore the check
 				return next();
