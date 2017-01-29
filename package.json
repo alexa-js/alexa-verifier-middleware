@@ -11,6 +11,7 @@
     "url": "git+https://github.com/alexa-js/alexa-verifier-middleware.git"
   },
   "keywords": [
+    "alexa",
     "alexa-verifier",
     "alexa-verifier-middleware"
   ],
