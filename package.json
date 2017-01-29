@@ -4,7 +4,7 @@
   "description": "An expressjs middleware wrapper for 'alexa-verifier'.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "tap ./test"
   },
   "repository": {
     "type": "git",
@@ -23,5 +23,8 @@
   "homepage": "https://github.com/alexa-js/alexa-verifier-middleware#readme",
   "dependencies": {
     "alexa-verifier": "^0.2.0"
+  },
+  "devDependencies": {
+    "tap": "^10.0.0"
   }
 }
