@@ -2,7 +2,7 @@
   "name": "alexa-verifier-middleware",
   "version": "0.1.5",
   "description": "An expressjs middleware wrapper for 'alexa-verifier'.",
-  "main": "container.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
