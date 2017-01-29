@@ -7,7 +7,7 @@
 [![dependencies Status](https://david-dm.org/tejashah88/alexa-verifier-middleware/status.svg)](https://david-dm.org/tejashah88/alexa-verifier-middleware)
 ![NPM Version](https://img.shields.io/npm/v/alexa-verifier-middleware.svg)
 
-This is an [express](https://www.npmjs.com/package/express) middleware that verifies HTTP requests sent to an Alexa skill are sent from Amazon.
+An [express](https://www.npmjs.com/package/express) middleware that verifies HTTP requests sent to an Alexa skill are sent from Amazon.
 
 
 ### Usage
