@@ -1,10 +1,9 @@
 # alexa-verifier-middleware
 
-[![Build Status](https://travis-ci.org/alexa-js/alexa-verifier-middleware.svg?branch=master)](https://travis-ci.org/alexa-js/alexa-verifier-middleware)
-
 [![NPM](https://nodei.co/npm/alexa-verifier-middleware.png)](https://www.npmjs.com/package/alexa-verifier-middleware/)
 
-[![dependencies Status](https://david-dm.org/tejashah88/alexa-verifier-middleware/status.svg)](https://david-dm.org/tejashah88/alexa-verifier-middleware)
+[![Build Status](https://travis-ci.org/alexa-js/alexa-verifier-middleware.svg?branch=master)](https://travis-ci.org/alexa-js/alexa-verifier-middleware)
+[![dependencies Status](https://david-dm.org/alexa-js/alexa-verifier-middleware/status.svg)](https://david-dm.org/tejashah88/alexa-verifier-middleware)
 ![NPM Version](https://img.shields.io/npm/v/alexa-verifier-middleware.svg)
 
 An [express](https://www.npmjs.com/package/express) middleware that verifies HTTP requests sent to an Alexa skill are sent from Amazon.
@@ -44,7 +43,7 @@ Non-strict behavior is deprecated and will be removed in the near future.
 
 
 ### Mentions
-* [mreinstein](https://github.com/mreinstein) for his [alexa-verifier](https://github.com/mreinstein/alexa-verifier) module, which allows you to verify any Amazon requests from any web service
+* [mreinstein](https://github.com/mreinstein) for his [alexa-verifier](https://github.com/alexa-js/alexa-verifier) module, which allows you to verify any Amazon requests from any web service
 
 ### License
 Copyright (c) 2016-2017 Tejas Shah
