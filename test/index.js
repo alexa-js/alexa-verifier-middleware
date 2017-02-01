@@ -4,13 +4,41 @@ var test     = require('tap').test
 var verifier = require('../')
 
 
-// verifier() returns a function of the form function(req, res, next)
-// (a standard expressjs middleware)
+// verifier is an express middleware (i.e., function(req, res, next) { ... )
 
 test('enforce strict headerCheck always', function(t) {
 
   var mockReq = { headers: {}, on: function(eventName, callback) { } }
   var mockRes = { }
+  var nextInvocationCount = 0
+  var mockNext = function() { nextInvocationCount++ }
+
+  verifier(mockReq, mockRes, mockNext)
+
+  t.equal(nextInvocationCount, 0)
+  t.end()
+})
+
+
+test('fail if request body is already parsed', function(t) {
+  var mockReq = {
+    headers: {},
+    _body: true,
+    _rawBody: {},
+    on: function(eventName, callback) { }
+  }
+
+  var mockRes = {
+    status: function(httpCode) {
+      t.equal(httpCode, 400)
+      return {
+        json: function(input) {
+          t.deepEqual(input, { status: 'failure', reason: 'The raw request body is not available.' })
+        }
+      }
+    }
+  }
+
   var nextInvocationCount = 0
   var mockNext = function() { nextInvocationCount++ }
 

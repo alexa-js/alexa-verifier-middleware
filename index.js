@@ -9,10 +9,12 @@ var verifier = require('alexa-verifier')
 // middlewares don't try to parse the body again
 module.exports = function alexaVerifierMiddleware(req, res, next) {
 	if (req._body && (typeof req.rawBody !== 'string')) {
-		var er = 'the raw request body is not available'
+		var er = 'The raw request body is not available.'
 		res.status(400).json({ status: 'failure', reason: er })
 	}
 
+	// TODO: if _rawBody is set and a string, don't obliterate it here!
+	
 	// mark the request body as already having been parsed so it's ignored by
 	// other body parser middlewares
 	req._body = true
