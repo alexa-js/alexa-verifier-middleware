@@ -11,35 +11,29 @@ An [express](https://www.npmjs.com/package/express) middleware that verifies HTT
 
 ### Usage
 
-It is recommended that you attach all Alexa routes to an express Router. That way you can 
-enforce `strictHeaderCheck` mode, which is the secure way of using this module:
+It is recommended that you attach all Alexa routes to an express Router.
 ```javascript
-var express = require('express')
-var avm = require('alexa-verifier-middleware')
+var express  = require('express')
+var verifier = require('alexa-verifier-middleware')
+
+
 var app = express()
 
-// create a router to attach all Alexa related endpoints to
+// create a router and attach to express before doing anything else
 var alexaRouter = express.Router()
+app.use('/alexa', alexaRouter)
 
-// the verifier middleware is loaded first because it needs the entire
+// attach the verifier middleware first because it needs the entire
 // request body, and express doesn't expose this on the request object
-alexaRouter.use(avm({ strictHeaderCheck: true }))
+alexaRouter.use(verifier)
 
 // Routes that handle alexa traffic are now attached here.
 // Since this is attached to a router mounted at /alexa,
 // this endpoint will be accessible at /alexa/weather_info
 alexaRouter.get('/weather_info', function(req, res) { ... })
 
-app.use('/alexa', alexaRouter)
-
 app.listen(3000)
 ```
-
-If you don't pass `strictHeaderCheck: true` this will default to an insecure mode of operation.
-
-**You must enable `strictHeaderCheck` to pass Alexa skill certification**
-
-Non-strict behavior is deprecated and will be removed in the near future.
 
 
 ### Mentions

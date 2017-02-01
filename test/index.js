@@ -7,24 +7,21 @@ var verifier = require('../')
 // verifier() returns a function of the form function(req, res, next)
 // (a standard expressjs middleware)
 
-test('dont enforce strict headerCheck by default', function(t) {
-  var middleware = verifier()
+test('enforce strict headerCheck always', function(t) {
 
-  var mockReq = { headers: {} }
+  var mockReq = { headers: {}, on: function(eventName, callback) { } }
   var mockRes = { }
   var nextInvocationCount = 0
   var mockNext = function() { nextInvocationCount++ }
 
-  middleware(mockReq, mockRes, mockNext)
+  verifier(mockReq, mockRes, mockNext)
 
-  t.equal(nextInvocationCount, 1)
+  t.equal(nextInvocationCount, 0)
   t.end()
 })
 
 
-test('fail strict headerCheck missing signaturecertchainurl header', function(t) {
-  var middleware = verifier({ strictHeaderCheck: true })
-
+test('fail missing signaturecertchainurl header', function(t) {
   var mockReq = {
     headers: {},
     on: function(eventName, callback) { }
@@ -44,16 +41,14 @@ test('fail strict headerCheck missing signaturecertchainurl header', function(t)
   var nextInvocationCount = 0
   var mockNext = function() { nextInvocationCount++ }
 
-  middleware(mockReq, mockRes, mockNext)
+  verifier(mockReq, mockRes, mockNext)
 
   t.equal(nextInvocationCount, 0)
   t.end()
 })
 
 
-test('fail strict headerCheck missing signature header', function(t) {
-  var middleware = verifier({ strictHeaderCheck: true })
-
+test('fail missing signature header', function(t) {
   var mockReq = {
     headers: {
       signaturecertchainurl: 'some-bogus-value'
@@ -75,16 +70,15 @@ test('fail strict headerCheck missing signature header', function(t) {
   var nextInvocationCount = 0
   var mockNext = function() { nextInvocationCount++ }
 
-  middleware(mockReq, mockRes, mockNext)
+  verifier(mockReq, mockRes, mockNext)
 
   t.equal(nextInvocationCount, 0)
   t.end()
 })
 
 
-test('pass strict headerCheck', function(t) {
-  var middleware = verifier({ strictHeaderCheck: true })
-
+test('pass', function(t) {
+  
   var mockReq = {
     headers: {
       signaturecertchainurl: 'some-bogus-value',
@@ -98,7 +92,7 @@ test('pass strict headerCheck', function(t) {
   var nextInvocationCount = 0
   var mockNext = function() { nextInvocationCount++ }
 
-  middleware(mockReq, mockRes, mockNext)
+  verifier(mockReq, mockRes, mockNext)
 
   t.equal(nextInvocationCount, 0)
   t.equal(mockReq._body, true)
@@ -108,8 +102,6 @@ test('pass strict headerCheck', function(t) {
 
 
 test('fail on invalid JSON body', function(t) {
-  var middleware = verifier({ strictHeaderCheck: true })
-
   var dataCallback, endCallback
 
   var mockReq = {
@@ -134,7 +126,7 @@ test('fail on invalid JSON body', function(t) {
 
   var mockNext = function() { }
 
-  middleware(mockReq, mockRes, mockNext)
+  verifier(mockReq, mockRes, mockNext)
 
   // use setTimeout to force asnychronous callback
   setTimeout(function() {
