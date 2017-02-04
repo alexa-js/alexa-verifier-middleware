@@ -14,7 +14,7 @@ module.exports = function alexaVerifierMiddleware(req, res, next) {
 	}
 
 	// TODO: if _rawBody is set and a string, don't obliterate it here!
-	
+
 	// mark the request body as already having been parsed so it's ignored by
 	// other body parser middlewares
 	req._body = true

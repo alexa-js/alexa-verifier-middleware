@@ -2,14 +2,19 @@
 
 var test     = require('tap').test
 var verifier = require('../')
-
+var httpMocks = require('node-mocks-http')
 
 // verifier is an express middleware (i.e., function(req, res, next) { ... )
 
 test('enforce strict headerCheck always', function(t) {
+  var mockReq = httpMocks.createRequest({
+    method: 'POST',
+    headers: { },
+    on: function(eventName, callback) { }
+  })
 
-  var mockReq = { headers: {}, on: function(eventName, callback) { } }
-  var mockRes = { }
+  var mockRes = httpMocks.createResponse({ })
+
   var nextInvocationCount = 0
   var mockNext = function() { nextInvocationCount++ }
 
@@ -19,16 +24,16 @@ test('enforce strict headerCheck always', function(t) {
   t.end()
 })
 
-
 test('fail if request body is already parsed', function(t) {
-  var mockReq = {
-    headers: {},
+  var mockReq = httpMocks.createRequest({
+    method: 'POST',
+    headers: { },
     _body: true,
     _rawBody: {},
     on: function(eventName, callback) { }
-  }
+  })
 
-  var mockRes = {
+  var mockRes = httpMocks.createResponse({
     status: function(httpCode) {
       t.equal(httpCode, 400)
       return {
@@ -37,7 +42,7 @@ test('fail if request body is already parsed', function(t) {
         }
       }
     }
-  }
+  })
 
   var nextInvocationCount = 0
   var mockNext = function() { nextInvocationCount++ }
@@ -48,14 +53,14 @@ test('fail if request body is already parsed', function(t) {
   t.end()
 })
 
-
 test('fail missing signaturecertchainurl header', function(t) {
-  var mockReq = {
-    headers: {},
+  var mockReq = httpMocks.createRequest({
+    method: 'POST',
+    headers: { },
     on: function(eventName, callback) { }
-  }
+  })
 
-  var mockRes = {
+  var mockRes = httpMocks.createResponse({
     status: function(httpCode) {
       t.equal(httpCode, 401)
       return {
@@ -64,7 +69,7 @@ test('fail missing signaturecertchainurl header', function(t) {
         }
       }
     }
-  }
+  })
 
   var nextInvocationCount = 0
   var mockNext = function() { nextInvocationCount++ }
@@ -75,16 +80,16 @@ test('fail missing signaturecertchainurl header', function(t) {
   t.end()
 })
 
-
 test('fail missing signature header', function(t) {
-  var mockReq = {
+  var mockReq = httpMocks.createRequest({
+    method: 'POST',
     headers: {
       signaturecertchainurl: 'some-bogus-value'
     },
     on: function(eventName, callback) { }
-  }
+  })
 
-  var mockRes = {
+  var mockRes = httpMocks.createResponse({
     status: function(httpCode) {
       t.equal(httpCode, 401)
       return {
@@ -93,7 +98,7 @@ test('fail missing signature header', function(t) {
         }
       }
     }
-  }
+  })
 
   var nextInvocationCount = 0
   var mockNext = function() { nextInvocationCount++ }
@@ -104,18 +109,27 @@ test('fail missing signature header', function(t) {
   t.end()
 })
 
-
 test('pass', function(t) {
-  
-  var mockReq = {
+  var mockReq = httpMocks.createRequest({
+    method: 'POST',
     headers: {
       signaturecertchainurl: 'some-bogus-value',
       signature: 'another-dud-value'
     },
     on: function(eventName, callback) { }
-  }
+  })
 
-  var mockRes = { }
+  // this should happen since we aren't supplying the actual AMAZON headers
+  var mockRes = httpMocks.createResponse({
+    status: function(httpCode) {
+      t.equal(httpCode, 401)
+      return {
+        json: function(input) {
+          t.deepEqual(input, { status: 'failure', reason: 'signature is not base64 encoded' })
+        }
+      }
+    }
+  })
 
   var nextInvocationCount = 0
   var mockNext = function() { nextInvocationCount++ }
@@ -128,11 +142,11 @@ test('pass', function(t) {
   t.end()
 })
 
-
 test('fail on invalid JSON body', function(t) {
   var dataCallback, endCallback
 
-  var mockReq = {
+  var mockReq = httpMocks.createRequest({
+    method: 'POST',
     headers: {
       signaturecertchainurl: 'some-bogus-value',
       signature: 'heres-another-arbitrary-value'
@@ -141,16 +155,16 @@ test('fail on invalid JSON body', function(t) {
       if (eventName === 'data') dataCallback = callback
       if (eventName === 'end') endCallback = callback
     }
-  }
+  })
 
-  var mockRes = {
+  var mockRes = httpMocks.createResponse({
     status: function(httpCode) {
       return {
         json: function(input) {
         }
       }
     }
-  }
+  })
 
   var mockNext = function() { }
 
@@ -162,7 +176,7 @@ test('fail on invalid JSON body', function(t) {
     endCallback()
     t.equal(mockReq._body, true)
     t.equal(mockReq.rawBody, 'some invalid JSON string')
-    t.deepEqual(mockReq.body, {})
+    t.deepEqual(mockReq.body, { })
     t.end()
   }, 0)
 })
