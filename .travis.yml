@@ -17,17 +17,14 @@ cache:
   directories:
     - node_modules
 
-install:
-  - npm install
-
-script:
-  - npm run-script coverage
-
 notifications:
   email: false
 
 matrix:
   include:
+  - node_js: 7
+    script:
+      - npm run-script coverage
   - node_js: '0.10'
     env: BROWSER_NAME=chrome BROWSER_VERSION=latest
   - node_js: '0.10'
