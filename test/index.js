@@ -123,5 +123,5 @@ test('fail invalid signature', function(t) {
       status: 'failure'
     });
     t.end();
-  }, 1000);
+  }, 2000);
 });
