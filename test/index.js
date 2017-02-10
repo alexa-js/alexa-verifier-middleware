@@ -54,7 +54,7 @@ test('fail if request body is already parsed', function(t) {
 
   t.equal(mockRes.statusCode, 400);
   t.deepEqual(JSON.parse(mockRes._getData()), {
-    reason: 'The raw request body is not available.',
+    reason: 'The raw request body has already been parsed.',
     status: 'failure'
   });
 
