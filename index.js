@@ -9,7 +9,7 @@ var verifier = require('alexa-verifier')
 module.exports = function alexaVerifierMiddleware(req, res, next) {
   if (req._body && (typeof req.rawBody !== 'string')) {
     var er = 'The raw request body is not available.'
-    res.status(400).json({ status: 'failure', reason: er })
+    return res.status(400).json({ status: 'failure', reason: er })
   }
 
   // TODO: if _rawBody is set and a string, don't obliterate it here!

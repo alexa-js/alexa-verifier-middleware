@@ -1,182 +1,127 @@
 'use strict'
 
-var test     = require('tap').test
+var test = require('tap').test
 var verifier = require('../')
 var httpMocks = require('node-mocks-http')
 
-// verifier is an express middleware (i.e., function(req, res, next) { ... )
+var invokeMiddleware = function(data, next) {
+  var callbacks = {};
+
+  data['method'] = data['method'] || 'POST';
+  data['on'] = function(eventName, callback) {
+    callbacks[eventName] = callback;
+  };
+
+  var mockReq = httpMocks.createRequest(data);
+  var mockRes = httpMocks.createResponse();
+
+  next = next || function() {}
+
+  // verifier is an express middleware (i.e., function(req, res, next) { ... )
+  verifier(mockReq, mockRes, next);
+
+  if (callbacks['data']) {
+    callbacks['data'](data['body']);
+  }
+
+  if (callbacks['end']) {
+    callbacks['end']();
+  }
+
+  return mockRes;
+};
 
 test('enforce strict headerCheck always', function(t) {
-  var mockReq = httpMocks.createRequest({
-    method: 'POST',
-    headers: { },
-    on: function(eventName, callback) { }
-  })
-
-  var mockRes = httpMocks.createResponse({ })
-
   var nextInvocationCount = 0
   var mockNext = function() { nextInvocationCount++ }
+  var mockRes = invokeMiddleware({}, mockNext);
 
-  verifier(mockReq, mockRes, mockNext)
-
+  t.equal(mockRes.statusCode, 401);
+  t.deepEqual(JSON.parse(mockRes._getData()), {
+    reason: 'signature is not base64 encoded',
+    status: 'failure'
+  });
   t.equal(nextInvocationCount, 0)
   t.end()
-})
+});
 
 test('fail if request body is already parsed', function(t) {
-  var mockReq = httpMocks.createRequest({
-    method: 'POST',
-    headers: { },
+  var mockRes = invokeMiddleware({
+    headers: {},
     _body: true,
-    _rawBody: {},
-    on: function(eventName, callback) { }
-  })
+    rawBody: {}
+  });
 
-  var mockRes = httpMocks.createResponse({
-    status: function(httpCode) {
-      t.equal(httpCode, 400)
-      return {
-        json: function(input) {
-          t.deepEqual(input, { status: 'failure', reason: 'The raw request body is not available.' })
-        }
-      }
-    }
-  })
+  t.equal(mockRes.statusCode, 400);
+  t.deepEqual(JSON.parse(mockRes._getData()), {
+    reason: 'The raw request body is not available.',
+    status: 'failure'
+  });
 
-  var nextInvocationCount = 0
-  var mockNext = function() { nextInvocationCount++ }
-
-  verifier(mockReq, mockRes, mockNext)
-
-  t.equal(nextInvocationCount, 0)
-  t.end()
+  t.end();
 })
 
-test('fail missing signaturecertchainurl header', function(t) {
-  var mockReq = httpMocks.createRequest({
-    method: 'POST',
-    headers: { },
-    on: function(eventName, callback) { }
-  })
-
-  var mockRes = httpMocks.createResponse({
-    status: function(httpCode) {
-      t.equal(httpCode, 401)
-      return {
-        json: function(input) {
-          t.deepEqual(input, { status: 'failure', reason: 'The signaturecertchainurl HTTP request header is invalid!' })
-        }
-      }
-    }
-  })
-
-  var nextInvocationCount = 0
-  var mockNext = function() { nextInvocationCount++ }
-
-  verifier(mockReq, mockRes, mockNext)
-
-  t.equal(nextInvocationCount, 0)
-  t.end()
-})
-
-test('fail missing signature header', function(t) {
-  var mockReq = httpMocks.createRequest({
-    method: 'POST',
+test('fail invalid signaturecertchainurl header', function(t) {
+  var mockRes = invokeMiddleware({
     headers: {
-      signaturecertchainurl: 'some-bogus-value'
+      signature: 'aGVsbG8NCg==',
+      signaturecertchainurl: 'https://invalid'
     },
-    on: function(eventName, callback) { }
-  })
-
-  var mockRes = httpMocks.createResponse({
-    status: function(httpCode) {
-      t.equal(httpCode, 401)
-      return {
-        json: function(input) {
-          t.deepEqual(input, { status: 'failure', reason: 'The signature HTTP request header is invalid!' })
-        }
+    body: JSON.stringify({
+      hello: 'world',
+      request: {
+        timestamp: new Date().getTime()
       }
-    }
-  })
+    }),
+  });
 
-  var nextInvocationCount = 0
-  var mockNext = function() { nextInvocationCount++ }
+  t.equal(mockRes.statusCode, 401);
+  t.deepEqual(JSON.parse(mockRes._getData()), {
+    reason: 'Certificate URI hostname must be s3.amazonaws.com: invalid',
+    status: 'failure'
+  });
 
-  verifier(mockReq, mockRes, mockNext)
-
-  t.equal(nextInvocationCount, 0)
   t.end()
-})
+});
 
-test('pass', function(t) {
-  var mockReq = httpMocks.createRequest({
-    method: 'POST',
+test('fail invalid JSON body', function(t) {
+  var mockRes = invokeMiddleware({
     headers: {
-      signaturecertchainurl: 'some-bogus-value',
-      signature: 'another-dud-value'
+      signature: 'aGVsbG8NCg==',
+      signaturecertchainurl: 'https://invalid'
     },
-    on: function(eventName, callback) { }
-  })
+    body: 'invalid'
+  });
 
-  // this should happen since we aren't supplying the actual AMAZON headers
-  var mockRes = httpMocks.createResponse({
-    status: function(httpCode) {
-      t.equal(httpCode, 401)
-      return {
-        json: function(input) {
-          t.deepEqual(input, { status: 'failure', reason: 'signature is not base64 encoded' })
-        }
-      }
-    }
-  })
+  t.equal(mockRes.statusCode, 401);
+  t.deepEqual(JSON.parse(mockRes._getData()), {
+    reason: 'request body invalid json',
+    status: 'failure'
+  });
 
-  var nextInvocationCount = 0
-  var mockNext = function() { nextInvocationCount++ }
-
-  verifier(mockReq, mockRes, mockNext)
-
-  t.equal(nextInvocationCount, 0)
-  t.equal(mockReq._body, true)
-  t.equal(mockReq.rawBody, '')
   t.end()
-})
+});
 
-test('fail on invalid JSON body', function(t) {
-  var dataCallback, endCallback
 
-  var mockReq = httpMocks.createRequest({
-    method: 'POST',
+test('fail invalid signature', function(t) {
+  var mockRes = invokeMiddleware({
     headers: {
-      signaturecertchainurl: 'some-bogus-value',
-      signature: 'heres-another-arbitrary-value'
+      signature: 'aGVsbG8NCg==',
+      signaturecertchainurl: 'https://s3.amazonaws.com/echo.api/echo-api-cert.pem'
     },
-    on: function(eventName, callback) {
-      if (eventName === 'data') dataCallback = callback
-      if (eventName === 'end') endCallback = callback
-    }
-  })
-
-  var mockRes = httpMocks.createResponse({
-    status: function(httpCode) {
-      return {
-        json: function(input) {
-        }
+    body: JSON.stringify({
+      request: {
+        timestamp: new Date().getTime()
       }
-    }
-  })
+    })
+  });
 
-  var mockNext = function() { }
-
-  verifier(mockReq, mockRes, mockNext)
-
-  // use setTimeout to force asnychronous callback
   setTimeout(function() {
-    dataCallback('some invalid JSON string')
-    endCallback()
-    t.equal(mockReq._body, true)
-    t.equal(mockReq.rawBody, 'some invalid JSON string')
-    t.deepEqual(mockReq.body, { })
-    t.end()
-  }, 0)
-})
+    t.equal(mockRes.statusCode, 401);
+    t.deepEqual(JSON.parse(mockRes._getData()), {
+      reason: 'certificate expiration check failed',
+      status: 'failure'
+    });
+    t.end();
+  }, 2000);
+});
