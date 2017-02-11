@@ -106,7 +106,7 @@ test('fail invalid signature', function(t) {
   var mockRes = invokeMiddleware({
     headers: {
       signature: 'aGVsbG8NCg==',
-      signaturecertchainurl: 'https://s3.amazonaws.com/echo.api/echo-api-cert.pem'
+      signaturecertchainurl: 'https://s3.amazonaws.com/echo.api/echo-api-cert-4.pem'
     },
     body: JSON.stringify({
       request: {
@@ -122,7 +122,7 @@ test('fail invalid signature', function(t) {
     t.equal(calledNext, false);
     t.equal(mockRes.statusCode, 401);
     t.deepEqual(JSON.parse(mockRes._getData()), {
-      reason: 'certificate expiration check failed',
+      reason: 'certificate verification failed',
       status: 'failure'
     });
     t.end();
