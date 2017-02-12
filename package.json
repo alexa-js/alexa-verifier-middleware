@@ -28,6 +28,9 @@
   "devDependencies": {
     "coveralls": "^2.11.15",
     "node-mocks-http": "^1.5.6",
-    "tap": "^10.0.0"
+    "tap": "^10.0.0",
+    "supertest": "^3.0.0",
+    "express": "^4.14.1",
+    "body-parser": "^1.16.1"
   }
 }

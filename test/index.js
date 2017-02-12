@@ -125,3 +125,29 @@ test('fail invalid signature', function(t) {
     t.end();
   }, 2000);
 });
+
+
+test('with express.js and body-parser incorrectly mounted', function(t) {
+  var express = require('express');
+  var app = express();
+  app.use(require('body-parser').json());
+  app.use(verifier);
+  var server = app.listen(3000);
+  var request = require('supertest');
+  request(server)
+    .post('/')
+    .send({ x: 1 })
+    .set('signaturecertchainurl', 'dummy')
+    .set('signature', 'aGVsbG8NCg==')
+    .end(function (err, res) {
+      t.equal(res.statusCode, 400);
+      t.deepEqual(res.body, {
+        "reason": "The raw request body has already been parsed.",
+        "status": "failure"
+      });
+      server.close();
+      t.end();
+    });
+});
+
+
