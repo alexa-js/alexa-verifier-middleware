@@ -37,7 +37,9 @@ app.listen(3000)
 ```
 
 ### Common errors
-* `The raw request body has already been parsed.`- This means that you're probably using one of the body-parser middlewares and it is loaded before this one. To fix it, you should load the body-parsers **after** this one.
+
+#### The raw request body has already been parsed.
+* This means that you're probably using one of the body-parser middlewares and it is loaded before this one. To fix it, you should load the body-parsers **after** this one.
 
 Before:
 ```javascript
