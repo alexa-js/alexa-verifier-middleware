@@ -38,7 +38,7 @@ test('enforce strict headerCheck always', function(t) {
 
   t.equal(mockRes.statusCode, 401);
   t.deepEqual(JSON.parse(mockRes._getData()), {
-    reason: 'signature is not base64 encoded',
+    reason: 'missing certificate url',
     status: 'failure'
   });
   t.equal(nextInvocationCount, 0)
@@ -122,7 +122,7 @@ test('fail invalid signature', function(t) {
     t.equal(calledNext, false);
     t.equal(mockRes.statusCode, 401);
     t.deepEqual(JSON.parse(mockRes._getData()), {
-      reason: 'certificate verification failed',
+      reason: 'invalid signature',
       status: 'failure'
     });
     t.end();
