@@ -62,7 +62,7 @@ alexaRouter.use(bodyParser.json());
 ```
 
 ### Mentions
-* [mreinstein](https://github.com/mreinstein) for his [alexa-verifier](https://github.com/alexa-js/alexa-verifier) module, which allows you to verify any Amazon requests from any web service
+* [mreinstein](https://github.com/mreinstein) for his [alexa-verifier](https://github.com/mreinstein/alexa-verifier) module, which allows you to verify any Amazon requests from any web service
 
 ### License
 Copyright (c) 2016-2017 Tejas Shah
