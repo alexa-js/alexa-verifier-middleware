@@ -3,6 +3,9 @@ logs
 *.log
 npm-debug.log*
 
+# Don't checkin package-lock.json for libraries
+package-lock.json
+
 # Runtime data
 pids
 *.pid
