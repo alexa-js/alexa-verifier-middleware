@@ -1,4 +1,5 @@
 'use strict'
+
 var test = require('tap').test;
 var verifier = require('../');
 var httpMocks = require('node-mocks-http');
@@ -28,8 +29,7 @@ var invokeMiddleware = function(data, next, after) {
     callbacks['end']();
   }
 
-  process.nextTick(() => after(mockRes));
-  //return mockRes;
+  process.nextTick(after, mockRes);
 };
 
 test('enforce strict headerCheck always', function(t) {
