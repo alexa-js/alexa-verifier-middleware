@@ -8,6 +8,7 @@ node_js:
 - '6'
 - '7'
 - '8'
+- '9'
 
 cache:
   directories:
@@ -18,6 +19,6 @@ notifications:
 
 matrix:
   include:
-  - node_js: 7
+  - node_js: 8
     script:
       - npm run-script coverage
