@@ -123,7 +123,7 @@ test('fail invalid signature', function(t) {
       t.equal(calledNext, false)
       t.equal(mockRes.statusCode, 401)
       t.deepEqual(JSON.parse(mockRes._getData()), {
-        reason: 'invalid signature',
+        reason: 'invalid certificate validity (past expired date)',
         status: 'failure'
       })
       t.end()
