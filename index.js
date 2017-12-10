@@ -38,7 +38,7 @@ module.exports = function alexaVerifierMiddleware(req, res, next) {
 
     verifier(certUrl, signature, req.rawBody, function(er) {
       if (er) {
-        res.status(401).json({ status: 'failure', reason: er })
+        res.status(400).json({ status: 'failure', reason: er })
       } else {
         next()
       }
