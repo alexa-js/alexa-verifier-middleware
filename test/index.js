@@ -37,7 +37,7 @@ test('enforce strict headerCheck always', function(t) {
   var nextInvocationCount = 0
   var mockNext = function() { nextInvocationCount++ }
   var mockRes = invokeMiddleware({}, mockNext, function(mockRes) {
-    t.equal(mockRes.statusCode, 401)
+    t.equal(mockRes.statusCode, 400)
     t.deepEqual(JSON.parse(mockRes._getData()), {
       reason: 'missing certificate url',
       status: 'failure'
@@ -76,7 +76,7 @@ test('fail invalid signaturecertchainurl header', function(t) {
       }
     }),
   }, null, function(mockRes) {
-    t.equal(mockRes.statusCode, 401)
+    t.equal(mockRes.statusCode, 400)
     t.deepEqual(JSON.parse(mockRes._getData()), {
       reason: 'Certificate URI hostname must be s3.amazonaws.com: invalid',
       status: 'failure'
@@ -94,7 +94,7 @@ test('fail invalid JSON body', function(t) {
     },
     body: 'invalid'
   }, null, function(mockRes) {
-    t.equal(mockRes.statusCode, 401)
+    t.equal(mockRes.statusCode, 400)
     t.deepEqual(JSON.parse(mockRes._getData()), {
       reason: 'request body invalid json',
       status: 'failure'
@@ -121,7 +121,7 @@ test('fail invalid signature', function(t) {
     var calledNext = false
     setTimeout(function() {
       t.equal(calledNext, false)
-      t.equal(mockRes.statusCode, 401)
+      t.equal(mockRes.statusCode, 400)
       t.deepEqual(JSON.parse(mockRes._getData()), {
         reason: 'invalid certificate validity (past expired date)',
         status: 'failure'
