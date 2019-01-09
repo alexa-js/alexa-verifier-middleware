@@ -17,21 +17,21 @@
     "alexa-verifier-middleware"
   ],
   "author": "tejashah88",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/alexa-js/alexa-verifier-middleware/issues"
   },
   "homepage": "https://github.com/alexa-js/alexa-verifier-middleware#readme",
   "dependencies": {
-    "alexa-verifier": "^1.0.0"
+    "alexa-verifier": "^2.0.1"
   },
   "devDependencies": {
-    "body-parser": "^1.18.2",
-    "coveralls": "^3.0.0",
-    "express": "^4.16.2",
-    "node-mocks-http": "^1.6.6",
-    "sinon": "^4.1.2",
-    "supertest": "^3.0.0",
-    "tap": "^10.7.3"
+    "body-parser": "^1.18.3",
+    "coveralls": "^3.0.2",
+    "express": "^4.16.4",
+    "node-mocks-http": "^1.7.3",
+    "sinon": "^7.2.2",
+    "supertest": "^3.3.0",
+    "tap": "^12.1.1"
   }
 }
