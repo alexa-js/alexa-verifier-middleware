@@ -1,6 +1,6 @@
 {
   "name": "alexa-verifier-middleware",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "An expressjs middleware that verifies HTTP requests sent to an Alexa skill are sent from Amazon.",
   "main": "index.js",
   "scripts": {
