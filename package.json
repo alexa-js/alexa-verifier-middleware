@@ -29,12 +29,12 @@
     "alexa-verifier": "^2.0.1"
   },
   "devDependencies": {
-    "body-parser": "^1.18.3",
-    "coveralls": "^3.0.2",
-    "express": "^4.16.4",
-    "node-mocks-http": "^1.7.3",
-    "sinon": "^7.2.2",
-    "supertest": "^3.3.0",
-    "tap": "^12.1.1"
+    "body-parser": "^1.19.0",
+    "coveralls": "^3.1.0",
+    "express": "^4.17.1",
+    "node-mocks-http": "^1.8.1",
+    "sinon": "^9.0.2",
+    "supertest": "^4.0.2",
+    "tap": "^14.10.7"
   }
 }
