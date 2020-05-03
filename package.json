@@ -3,6 +3,9 @@
   "version": "1.0.2",
   "description": "An expressjs middleware that verifies HTTP requests sent to an Alexa skill are sent from Amazon.",
   "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
   "scripts": {
     "test": "tap ./test",
     "coverage": "tap ./test -- --cov --coverage-report=lcov"
@@ -32,6 +35,6 @@
     "node-mocks-http": "^1.7.3",
     "sinon": "^7.2.2",
     "supertest": "^3.3.0",
-    "tap": "^14.4.1"
+    "tap": "^12.1.1"
   }
 }

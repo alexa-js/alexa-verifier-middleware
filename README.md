@@ -1,8 +1,6 @@
 # alexa-verifier-middleware
 
-[![NPM](https://nodei.co/npm/alexa-verifier-middleware.png)](https://www.npmjs.com/package/alexa-verifier-middleware/)
-
-![NPM Version](https://img.shields.io/npm/v/alexa-verifier-middleware.svg)
+[![NPM Version](https://img.shields.io/npm/v/alexa-verifier-middleware.svg)](https://www.npmjs.com/package/alexa-verifier-middleware/)
 [![Build Status](https://travis-ci.org/alexa-js/alexa-verifier-middleware.svg?branch=master)](https://travis-ci.org/alexa-js/alexa-verifier-middleware)
 [![Coverage Status](https://coveralls.io/repos/github/alexa-js/alexa-verifier-middleware/badge.svg)](https://coveralls.io/github/alexa-js/alexa-verifier-middleware)
 [![dependencies Status](https://david-dm.org/alexa-js/alexa-verifier-middleware/status.svg)](https://david-dm.org/tejashah88/alexa-verifier-middleware)
