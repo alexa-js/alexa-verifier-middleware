@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "tap ./test",
-    "coverage": "tap ./test -- --cov --coverage-report=lcov"
+    "coverage": "tap ./test -cov --coverage-report=lcov"
   },
   "repository": {
     "type": "git",
