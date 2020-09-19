@@ -9,9 +9,6 @@
 An [express](https://www.npmjs.com/package/express) middleware that verifies HTTP requests sent to an Alexa skill are sent from Amazon.
 
 
-requires node version 8 or higher
-
-
 ### Usage
 
 It is recommended that you attach all Alexa routes to an express Router.
