@@ -1,25 +1,26 @@
-'use strict'
-
-var test      = require('tap').test
-var verifier  = require('../')
-var httpMocks = require('node-mocks-http')
-var sinon     = require('sinon')
+import httpMocks from 'node-mocks-http'
+import sinon     from 'sinon'
+import tap       from 'tap'
+import verifier  from '../index.js'
 
 
-function invokeMiddleware(data, next, after) {
-  var callbacks = {}
+const { test } = tap
+
+
+function invokeMiddleware (data, next, after) {
+  var callbacks = { }
 
   data['method'] = data['method'] || 'POST'
-  data['on'] = function(eventName, callback) {
+  data['on'] = function (eventName, callback) {
     callbacks[eventName] = callback
   }
 
   var mockReq = httpMocks.createRequest(data)
   var mockRes = httpMocks.createResponse()
 
-  next = next || function() {}
+  next = next || function () {}
 
-  // verifier is an express middleware (i.e., function(req, res, next) { ... )
+  // verifier is an express middleware (i.e., function (req, res, next) { ... )
   verifier(mockReq, mockRes, next)
 
   if (callbacks['data']) {
@@ -33,12 +34,12 @@ function invokeMiddleware(data, next, after) {
   process.nextTick(after, mockRes)
 }
 
-test('enforce strict headerCheck always', function(t) {
+test('enforce strict headerCheck always', function (t) {
   var nextInvocationCount = 0
-  var mockNext = function() { nextInvocationCount++ }
-  var mockRes = invokeMiddleware({}, mockNext, function(mockRes) {
+  var mockNext = function () { nextInvocationCount++ }
+  var mockRes = invokeMiddleware({}, mockNext, function (mockRes) {
     t.equal(mockRes.statusCode, 400)
-    t.deepEqual(JSON.parse(mockRes._getData()), {
+    t.same(JSON.parse(mockRes._getData()), {
       reason: 'missing certificate url',
       status: 'failure'
     })
@@ -47,14 +48,14 @@ test('enforce strict headerCheck always', function(t) {
   })
 })
 
-test('fail if request body is already parsed', function(t) {
+test('fail if request body is already parsed', function (t) {
   var mockRes = invokeMiddleware({
     headers: {},
     _body: true,
     rawBody: {}
-  }, null, function(mockRes) {
+  }, null, function (mockRes) {
     t.equal(mockRes.statusCode, 400)
-    t.deepEqual(JSON.parse(mockRes._getData()), {
+    t.same(JSON.parse(mockRes._getData()), {
       reason: 'The raw request body has already been parsed.',
       status: 'failure'
     })
@@ -63,7 +64,7 @@ test('fail if request body is already parsed', function(t) {
   })
 })
 
-test('fail invalid signaturecertchainurl header', function(t) {
+test('fail invalid signaturecertchainurl header', function (t) {
   var mockRes = invokeMiddleware({
     headers: {
       signature: 'aGVsbG8NCg==',
@@ -75,9 +76,9 @@ test('fail invalid signaturecertchainurl header', function(t) {
         timestamp: new Date().getTime()
       }
     }),
-  }, null, function(mockRes) {
+  }, null, function (mockRes) {
     t.equal(mockRes.statusCode, 400)
-    t.deepEqual(JSON.parse(mockRes._getData()), {
+    t.same(JSON.parse(mockRes._getData()), {
       reason: 'Certificate URI hostname must be s3.amazonaws.com: invalid',
       status: 'failure'
     })
@@ -86,16 +87,16 @@ test('fail invalid signaturecertchainurl header', function(t) {
   })
 })
 
-test('fail invalid JSON body', function(t) {
+test('fail invalid JSON body', function (t) {
   var mockRes = invokeMiddleware({
     headers: {
       signature: 'aGVsbG8NCg==',
       signaturecertchainurl: 'https://invalid'
     },
     body: 'invalid'
-  }, null, function(mockRes) {
+  }, null, function (mockRes) {
     t.equal(mockRes.statusCode, 400)
-    t.deepEqual(JSON.parse(mockRes._getData()), {
+    t.same(JSON.parse(mockRes._getData()), {
       reason: 'request body invalid json',
       status: 'failure'
     })
@@ -104,7 +105,7 @@ test('fail invalid JSON body', function(t) {
   })
 })
 
-test('fail invalid signature', function(t) {
+test('fail invalid signature', function (t) {
   var mockRes = invokeMiddleware({
     headers: {
       signature: 'aGVsbG8NCg==',
@@ -115,14 +116,14 @@ test('fail invalid signature', function(t) {
         timestamp: new Date().getTime()
       }
     })
-  }, function() {
+  }, function () {
     calledNext = true
-  }, function(mockRes) {
+  }, function (mockRes) {
     var calledNext = false
-    setTimeout(function() {
+    setTimeout(function () {
       t.equal(calledNext, false)
       t.equal(mockRes.statusCode, 400)
-      t.deepEqual(JSON.parse(mockRes._getData()), {
+      t.same(JSON.parse(mockRes._getData()), {
         reason: 'invalid certificate validity (past expired date)',
         status: 'failure'
       })
@@ -131,30 +132,7 @@ test('fail invalid signature', function(t) {
   })
 })
 
-test('with express.js and body-parser incorrectly mounted', function(t) {
-  var express = require('express')
-  var app = express()
-  app.use(require('body-parser').json())
-  app.use(verifier)
-  var server = app.listen(3000)
-  var request = require('supertest')
-  request(server)
-    .post('/')
-    .send({ x: 1 })
-    .set('signaturecertchainurl', 'dummy')
-    .set('signature', 'aGVsbG8NCg==')
-    .end(function (err, res) {
-      t.equal(res.statusCode, 400)
-      t.deepEqual(res.body, {
-        "reason": "The raw request body has already been parsed.",
-        "status": "failure"
-      })
-      server.close()
-      t.end()
-    })
-})
-
-test('pass with correct signature', function(t) {
+test('pass with correct signature', function (t) {
   var timeout = global.setTimeout // see https://github.com/sinonjs/sinon/issues/269
   var ts = '2017-02-10T07:27:59Z'
   var now = new Date(ts)
@@ -189,11 +167,11 @@ test('pass with correct signature', function(t) {
         "inDialog": false
       }
     })
-  }, function() {
+  }, function () {
     calledNext = true
-  }, function(mockRes) {
+  }, function (mockRes) {
     t.equal(mockRes.statusCode, 200)
-    timeout(function() {
+    timeout(function () {
       t.equal(calledNext, true)
       clock.restore()
       t.end()

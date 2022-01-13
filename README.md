@@ -9,20 +9,21 @@
 An [express](https://www.npmjs.com/package/express) middleware that verifies HTTP requests sent to an Alexa skill are sent from Amazon.
 
 
-This module should work on node v4 and up, though we don't test on those platforms anymore. We guarantee support node v8 and up.
+Version 2.x is now a pure es module, and requires node 12.17 or higher. If you want to run this via an older version of node, use alexa-verifier-middleware@1.x 
 
 
 ### Usage
 
 It is recommended that you attach all Alexa routes to an express Router.
 ```javascript
-var express  = require('express');
-var verifier = require('alexa-verifier-middleware');
+import express  from 'express';
+import verifier from 'alexa-verifier-middleware';
 
-var app = express();
+
+const app = express();
 
 // create a router and attach to express before doing anything else
-var alexaRouter = express.Router();
+const alexaRouter = express.Router();
 app.use('/alexa', alexaRouter);
 
 // attach the verifier middleware first because it needs the entire
@@ -32,7 +33,7 @@ alexaRouter.use(verifier);
 // Routes that handle alexa traffic are now attached here.
 // Since this is attached to a router mounted at /alexa,
 // this endpoint will be accessible at /alexa/weather_info
-alexaRouter.get('/weather_info', function(req, res) { ... });
+alexaRouter.get('/weather_info', function (req, res) { ... });
 
 app.listen(3000);
 ```
@@ -44,7 +45,7 @@ app.listen(3000);
 
 Before:
 ```javascript
-var alexaRouter = express.Router();
+const alexaRouter = express.Router();
 app.use('/alexa', alexaRouter);
 
 // INCORRECT
@@ -54,7 +55,7 @@ alexaRouter.use(verifier);
 
 After:
 ```javascript
-var alexaRouter = express.Router();
+const alexaRouter = express.Router();
 app.use('/alexa', alexaRouter);
 
 // CORRECT
