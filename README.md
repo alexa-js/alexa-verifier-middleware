@@ -6,8 +6,6 @@
 
 ![example workflow](https://github.com/alexa-js/alexa-verifier-middleware/actions/workflows/main.yml/badge.svg)
 
-[![dependencies Status](https://david-dm.org/alexa-js/alexa-verifier-middleware/status.svg)](https://david-dm.org/tejashah88/alexa-verifier-middleware)
-
 An [express](https://www.npmjs.com/package/express) middleware that verifies HTTP requests sent to an Alexa skill are sent from Amazon.
 
 
