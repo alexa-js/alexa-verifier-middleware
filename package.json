@@ -1,7 +1,8 @@
 {
   "name": "alexa-verifier-middleware",
-  "version": "1.0.3",
+  "version": "2.0.0",
   "description": "An expressjs middleware that verifies HTTP requests sent to an Alexa skill are sent from Amazon.",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "test": "tap ./test"
@@ -22,14 +23,17 @@
   },
   "homepage": "https://github.com/alexa-js/alexa-verifier-middleware#readme",
   "dependencies": {
-    "alexa-verifier": "^2.0.2"
+    "alexa-verifier": "^3.0.2"
   },
   "devDependencies": {
     "body-parser": "^1.18.3",
     "express": "^4.16.4",
     "node-mocks-http": "^1.7.3",
-    "sinon": "^7.2.2",
-    "supertest": "^3.3.0",
-    "tap": "^14.4.1"
+    "sinon": "^12.0.1",
+    "supertest": "^6.2.1",
+    "tap": "^15.1.6"
+  },
+  "engines": {
+    "node": ">=12.17"
   }
 }

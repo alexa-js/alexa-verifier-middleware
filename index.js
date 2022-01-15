@@ -1,4 +1,5 @@
-var verifier = require('alexa-verifier')
+import verifier from 'alexa-verifier'
+
 
 // the alexa API calls specify an HTTPS certificate that must be validated.
 // the validation uses the request's raw POST body which isn't available from
@@ -6,9 +7,9 @@ var verifier = require('alexa-verifier')
 // signaturecertchainurl HTTP request header, parse out the entire body as a
 // text string, and set a flag on the request object so other body parser
 // middlewares don't try to parse the body again
-module.exports = function alexaVerifierMiddleware(req, res, next) {
+export default function alexaVerifierMiddleware (req, res, next) {
   if (req._body) {
-    var er = 'The raw request body has already been parsed.'
+    const er = 'The raw request body has already been parsed.'
     return res.status(400).json({ status: 'failure', reason: er })
   }
 
@@ -18,29 +19,28 @@ module.exports = function alexaVerifierMiddleware(req, res, next) {
   // other body parser middlewares
   req._body = true
   req.rawBody = ''
-  req.on('data', function(data) {
+  req.on('data', function (data) {
     return req.rawBody += data
   })
 
-  req.on('end', function() {
-    var certUrl, er, error, signature
+  req.on('end', function () {
+    let certUrl, er, error, signature
 
     try {
       req.body = JSON.parse(req.rawBody)
     } catch (error) {
       er = error
-      req.body = {}
+      req.body = { }
     }
 
     certUrl = req.headers.signaturecertchainurl
     signature = req.headers.signature
 
-    verifier(certUrl, signature, req.rawBody, function(er) {
-      if (er) {
+    verifier(certUrl, signature, req.rawBody, function (er) {
+      if (er)
         res.status(400).json({ status: 'failure', reason: er })
-      } else {
+      else
         next()
-      }
     })
   })
 }
