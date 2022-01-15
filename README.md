@@ -9,7 +9,8 @@
 An [express](https://www.npmjs.com/package/express) middleware that verifies HTTP requests sent to an Alexa skill are sent from Amazon.
 
 
-Version 2.x is now a pure es module, and requires node 12.17 or higher. If you want to run this via an older version of node, use alexa-verifier-middleware@1.x 
+Version 2.x is now a pure es module, and requires node 12.17 or higher. If you want to run this via an older version of node, use 
+[alexa-verifier-middleware@1.x](https://www.npmjs.com/package/alexa-verifier-middleware/v/1.0.3) 
 
 
 ### Usage
