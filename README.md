@@ -3,7 +3,9 @@
 [![NPM](https://nodei.co/npm/alexa-verifier-middleware.png)](https://www.npmjs.com/package/alexa-verifier-middleware/)
 
 ![NPM Version](https://img.shields.io/npm/v/alexa-verifier-middleware.svg)
-[![Build Status](https://travis-ci.org/alexa-js/alexa-verifier-middleware.svg?branch=master)](https://travis-ci.org/alexa-js/alexa-verifier-middleware)
+
+![example workflow](https://github.com/alexa-js/alexa-verifier-middleware/actions/workflows/main.yml/badge.svg)
+
 [![dependencies Status](https://david-dm.org/alexa-js/alexa-verifier-middleware/status.svg)](https://david-dm.org/tejashah88/alexa-verifier-middleware)
 
 An [express](https://www.npmjs.com/package/express) middleware that verifies HTTP requests sent to an Alexa skill are sent from Amazon.
