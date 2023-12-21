@@ -1,3 +1,7 @@
+## 2.0.3
+* Remediates CVE-2021-3765
+
+
 ## 2.0.2
 * add typescript definitions
 * update deps
