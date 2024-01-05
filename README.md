@@ -1,15 +1,13 @@
 # alexa-verifier-middleware
 
-[![NPM](https://nodei.co/npm/alexa-verifier-middleware.png)](https://www.npmjs.com/package/alexa-verifier-middleware/)
-
 ![NPM Version](https://img.shields.io/npm/v/alexa-verifier-middleware.svg)
 
-![example workflow](https://github.com/alexa-js/alexa-verifier-middleware/actions/workflows/main.yml/badge.svg)
+![Github CI status](https://github.com/alexa-js/alexa-verifier-middleware/actions/workflows/main.yml/badge.svg)
 
 An [express](https://www.npmjs.com/package/express) middleware that verifies HTTP requests sent to an Alexa skill are sent from Amazon.
 
 
-Version 2.x is now a pure es module, and requires node 12.17 or higher. If you want to run this via an older version of node, use 
+Version 3.x is now a pure ES module, and requires node 12.17 or higher. If you want to run this via an older version of node, use
 [alexa-verifier-middleware@1.x](https://www.npmjs.com/package/alexa-verifier-middleware/v/1.0.3) 
 
 

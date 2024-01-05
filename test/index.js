@@ -1,22 +1,138 @@
-import httpMocks from 'node-mocks-http'
-import sinon     from 'sinon'
-import tap       from 'tap'
-import verifier  from '../index.js'
+import url              from 'url'
+import crypto           from 'crypto'
+import { EventEmitter } from 'events';
+import { test }         from 'tap'
+import sinon            from 'sinon'
+import nock             from 'nock'
+import httpMocks        from 'node-mocks-http'
+import forge            from 'node-forge'
+import verifier         from '../index.js'
 
 
-const { test } = tap
+const MOCKED_TIMESTAMP = '2017-02-10T07:27:59Z'
+const VALID_CERT_SAN = 'echo-api.amazon.com'
+const VALID_CERT_URL = 'https://s3.amazonaws.com/echo.api/echo-api-cert-12.pem' // latest cert url
+const VALID_CERT_URL_PATH = url.parse(VALID_CERT_URL).path
 
+// Generate a certificate and a public/private key pair
+function generateCertKeyPair() {
+  var prng = forge.random.createInstance();
+  prng.seedFileSync = function(needed) {
+    return forge.util.fillString('a', needed);
+  };
 
+  const keys = forge.pki.rsa.generateKeyPair({
+    bits: 512,
+    workers: 1,
+    prng: prng,
+    algorithm: 'PRIMEINC',
+  })
+
+  const cert = forge.pki.createCertificate()
+  cert.publicKey = keys.publicKey
+  cert.serialNumber = '01'
+
+  cert.validity.notBefore = '0000-01-01T01:01:01Z'
+  cert.validity.notAfter = '9999-12-31T23:59:59Z'
+
+  const attrs = [
+    {
+      name: 'commonName',
+      value: 'example.org'
+    },
+    {
+      name: 'countryName',
+      value: 'US'
+    },
+    {
+      shortName: 'ST',
+      value: 'Virginia'
+    },
+    {
+      name: 'localityName',
+      value: 'Blacksburg'
+    },
+    {
+      name: 'organizationName',
+      value: 'Test'
+    },
+    {
+      shortName: 'OU',
+      value: 'Test'
+    }
+  ]
+
+  cert.setSubject(attrs)
+  cert.setIssuer(attrs)
+
+  cert.setExtensions([
+    {
+      name: 'basicConstraints',
+      cA: true
+    },
+    {
+      name: 'keyUsage',
+      keyCertSign: true,
+      digitalSignature: true,
+      nonRepudiation: true,
+      keyEncipherment: true,
+      dataEncipherment: true
+    },
+    {
+      name: 'extKeyUsage',
+      serverAuth: true,
+      clientAuth: true,
+      codeSigning: true,
+      emailProtection: true,
+      timeStamping: true
+    },
+    {
+      name: 'nsCertType',
+      client: true,
+      server: true,
+      email: true,
+      objsign: true,
+      sslCA: true,
+      emailCA: true,
+      objCA: true
+    },
+    {
+      name: 'subjectAltName',
+      altNames: [{
+        type: 6, // URI
+        value: VALID_CERT_SAN
+      },
+      {
+        type: 7, // IP
+        ip: '127.0.0.1'
+      }]
+    },
+    {
+      name: 'subjectKeyIdentifier'
+    }
+  ])
+
+  // self-sign certificate
+  cert.sign(keys.privateKey)
+
+  return {
+    certificate: forge.pki.certificateToPem(cert),
+    publicKey:   forge.pki.publicKeyToPem(keys.publicKey),
+    privateKey:  forge.pki.privateKeyToPem(keys.privateKey),
+  }
+}
+
+// invoke the middleware by creating a mock request
 function invokeMiddleware (data, next, after) {
-  var callbacks = { }
+  const callbacks = { }
 
   data['method'] = data['method'] || 'POST'
   data['on'] = function (eventName, callback) {
     callbacks[eventName] = callback
   }
 
-  var mockReq = httpMocks.createRequest(data)
-  var mockRes = httpMocks.createResponse()
+  const mockReq = httpMocks.createRequest(data)
+  const mockRes = httpMocks.createResponse()
 
   next = next || function () {}
 
@@ -35,40 +151,47 @@ function invokeMiddleware (data, next, after) {
 }
 
 test('enforce strict headerCheck always', function (t) {
-  var nextInvocationCount = 0
-  var mockNext = function () { nextInvocationCount++ }
-  var mockRes = invokeMiddleware({}, mockNext, function (mockRes) {
+  let calledNext = false
+  const mockNext = function () { calledNext = true }
+
+  const mockRes = invokeMiddleware({}, mockNext, function (mockRes) {
+    t.equal(calledNext, false)
     t.equal(mockRes.statusCode, 400)
-    t.same(JSON.parse(mockRes._getData()), {
+    t.same(mockRes._getJSONData(), {
       reason: 'missing certificate url',
       status: 'failure'
     })
-    t.equal(nextInvocationCount, 0)
     t.end()
   })
 })
 
 test('fail if request body is already parsed', function (t) {
-  var mockRes = invokeMiddleware({
+  let calledNext = false
+  const mockNext = function () { calledNext = true }
+
+  const mockRes = invokeMiddleware({
     headers: {},
     _body: true,
     rawBody: {}
-  }, null, function (mockRes) {
+  }, mockNext, function (mockRes) {
+    t.equal(calledNext, false)
     t.equal(mockRes.statusCode, 400)
-    t.same(JSON.parse(mockRes._getData()), {
+    t.same(mockRes._getJSONData(), {
       reason: 'The raw request body has already been parsed.',
       status: 'failure'
     })
-
     t.end()
   })
 })
 
 test('fail invalid signaturecertchainurl header', function (t) {
-  var mockRes = invokeMiddleware({
+  let calledNext = false
+  const mockNext = function () { calledNext = true }
+
+  const mockRes = invokeMiddleware({
     headers: {
-      signature: 'aGVsbG8NCg==',
-      signaturecertchainurl: 'https://invalid'
+      'signature-256': 'aGVsbG8NCg==',
+      'signaturecertchainurl': 'https://invalid'
     },
     body: JSON.stringify({
       hello: 'world',
@@ -76,9 +199,10 @@ test('fail invalid signaturecertchainurl header', function (t) {
         timestamp: new Date().getTime()
       }
     }),
-  }, null, function (mockRes) {
+  }, mockNext, function (mockRes) {
+    t.equal(calledNext, false)
     t.equal(mockRes.statusCode, 400)
-    t.same(JSON.parse(mockRes._getData()), {
+    t.same(mockRes._getJSONData(), {
       reason: 'Certificate URI hostname must be s3.amazonaws.com: invalid',
       status: 'failure'
     })
@@ -88,15 +212,19 @@ test('fail invalid signaturecertchainurl header', function (t) {
 })
 
 test('fail invalid JSON body', function (t) {
-  var mockRes = invokeMiddleware({
+  let calledNext = false
+  const mockNext = function () { calledNext = true }
+
+  const mockRes = invokeMiddleware({
     headers: {
-      signature: 'aGVsbG8NCg==',
-      signaturecertchainurl: 'https://invalid'
+      'signature-256': 'aGVsbG8NCg==',
+      'signaturecertchainurl': 'https://invalid'
     },
     body: 'invalid'
-  }, null, function (mockRes) {
+  }, mockNext, function (mockRes) {
+    t.equal(calledNext, false)
     t.equal(mockRes.statusCode, 400)
-    t.same(JSON.parse(mockRes._getData()), {
+    t.same(mockRes._getJSONData(), {
       reason: 'request body invalid json',
       status: 'failure'
     })
@@ -106,75 +234,107 @@ test('fail invalid JSON body', function (t) {
 })
 
 test('fail invalid signature', function (t) {
-  var mockRes = invokeMiddleware({
+  // Mount fake timers
+  const timeout = global.setTimeout // see https://github.com/sinonjs/sinon/issues/269
+  const now = new Date(MOCKED_TIMESTAMP)
+  const clock = sinon.useFakeTimers(now.getTime())
+
+  // Generate a certificate but will not validate anything against it
+  const { certificate } = generateCertKeyPair()
+
+  // Mock fetching of certificate for this session only
+  nock('https://s3.amazonaws.com').get(VALID_CERT_URL_PATH).reply(200, certificate)
+
+  let calledNext = false
+  const mockNext = function () { calledNext = true }
+
+  const mockRes = invokeMiddleware({
     headers: {
-      signature: 'aGVsbG8NCg==',
-      signaturecertchainurl: 'https://s3.amazonaws.com/echo.api/echo-api-cert-4.pem'
+      'signature-256': 'aGVsbG8NCg==',
+      'signaturecertchainurl': VALID_CERT_URL
     },
     body: JSON.stringify({
       request: {
-        timestamp: new Date().getTime()
+        timestamp: MOCKED_TIMESTAMP
       }
     })
-  }, function () {
-    calledNext = true
-  }, function (mockRes) {
-    var calledNext = false
-    setTimeout(function () {
+  }, mockNext, function (mockRes) {
+    // we need a timeout function here since the request might not be fully resolved until some point later
+    // this should be revisited at some point...
+    timeout(function () {
       t.equal(calledNext, false)
       t.equal(mockRes.statusCode, 400)
-      t.same(JSON.parse(mockRes._getData()), {
-        reason: 'invalid certificate validity (past expired date)',
+      t.same(mockRes._getJSONData(), {
+        reason: 'invalid signature',
         status: 'failure'
       })
+
+      clock.restore()
       t.end()
-    }, 2000)
+    }, 1000)
   })
 })
 
 test('pass with correct signature', function (t) {
-  var timeout = global.setTimeout // see https://github.com/sinonjs/sinon/issues/269
-  var ts = '2017-02-10T07:27:59Z'
-  var now = new Date(ts)
-  var clock = sinon.useFakeTimers(now.getTime())
-  var calledNext = false
-  var mockRes = invokeMiddleware({
-    headers: {
-      signature: 'Qc8OuaGEHWeL/39XTEDYFbOCufYWpwi45rqmM2R4WaSEYcSXq+hUko/88wv48+6SPUiEddWSEEINJFAFV5auYZsnBzqCK+SO8mGNOGHmLYpcFuSEHI3eA3nDIEARrXTivqqbH/LCPJHc0tqNYr3yPZRIR2mYFndJOxgDNSOooZX+tp2GafHHsjjShCjmePaLxJiGG1DmrL6fyOJoLrzc0olUxLmnJviS6Q5wBir899TMEZ/zX+aiBTt/khVvwIh+hI/PZsRq/pQw4WAvQz1bcnGNamvMA/TKSJtR0elJP+TgCqbVoYisDgQXkhi8/wonkLhs68pN+TurbR7GyC1vxw==',
-      signaturecertchainurl: 'https://s3.amazonaws.com/echo.api/echo-api-cert-4.pem'
-    },
-    body: JSON.stringify({
-      "version": "1.0",
-      "session": {
-        "new": true,
-        "sessionId": "SessionId.7745e45d-3042-45eb-8e86-cab2cf285daf",
-        "application": {
-          "applicationId": "amzn1.ask.skill.75c997b8-610f-4eb4-bf2e-95810e15fba2"
-        },
-        "attributes": {},
-        "user": {
-          "userId": "amzn1.ask.account.AF6Z7574YHBQCNNTJK45QROUSCUJEHIYAHZRP35FVU673VDGDKV4PH2M52PX4XWGCSYDM66B6SKEEFJN6RYWN7EME3FKASDIG7DPNGFFFNTN4ZT6B64IIZKSNTXQXEMVBXMA7J3FN3ERT2A4EDYFUYMGM4NSQU4RTAQOZWDD2J7JH6P2ROP2A6QEGLNLZDXNZU2DL7BKGCVLMNA"
-        }
+  // Mount fake timers
+  const timeout = global.setTimeout // see https://github.com/sinonjs/sinon/issues/269
+  const now = new Date(MOCKED_TIMESTAMP)
+  const clock = sinon.useFakeTimers(now.getTime())
+
+  // Generate a certificate and private/public key pair
+  const { certificate, privateKey } = generateCertKeyPair()
+
+  // Mock fetching of certificate for this session only
+  nock('https://s3.amazonaws.com').get(VALID_CERT_URL_PATH).reply(200, certificate)
+
+  let calledNext = false
+  const mockNext = function () { calledNext = true }
+
+  const reqBody = JSON.stringify({
+    "version": "1.0",
+    "session": {
+      "new": true,
+      "sessionId": "SessionId.7745e45d-3042-45eb-8e86-cab2cf285daf",
+      "application": {
+        "applicationId": "amzn1.ask.skill.75c997b8-610f-4eb4-bf2e-95810e15fba2"
       },
-      "request": {
-        "type": "IntentRequest",
-        "requestId": "EdwRequestId.fa7428b7-75d0-44c8-aebb-4c222ed48ebe",
-        "timestamp": ts,
-        "locale": "en-US",
-        "intent": {
-          "name": "HelloWorld"
-        },
-        "inDialog": false
+      "attributes": {},
+      "user": {
+        "userId": "amzn1.ask.account.AF6Z7574YHBQCNNTJK45QROUSCUJEHIYAHZRP35FVU673VDGDKV4PH2M52PX4XWGCSYDM66B6SKEEFJN6RYWN7EME3FKASDIG7DPNGFFFNTN4ZT6B64IIZKSNTXQXEMVBXMA7J3FN3ERT2A4EDYFUYMGM4NSQU4RTAQOZWDD2J7JH6P2ROP2A6QEGLNLZDXNZU2DL7BKGCVLMNA"
       }
-    })
-  }, function () {
-    calledNext = true
-  }, function (mockRes) {
-    t.equal(mockRes.statusCode, 200)
+    },
+    "request": {
+      "type": "IntentRequest",
+      "requestId": "EdwRequestId.fa7428b7-75d0-44c8-aebb-4c222ed48ebe",
+      "timestamp": MOCKED_TIMESTAMP,
+      "locale": "en-US",
+      "intent": {
+        "name": "HelloWorld"
+      },
+      "inDialog": false
+    }
+  })
+
+  // Create a base64-encoded signature to validate the request against via the public certificate
+  const signer = crypto.createSign('RSA-SHA256')
+  signer.update(reqBody)
+  const signature = signer.sign(privateKey, 'base64')
+
+  const mockRes = invokeMiddleware({
+    headers: {
+      'signature-256': signature,
+      'signaturecertchainurl': VALID_CERT_URL
+    },
+    body: reqBody
+  }, mockNext, function (mockRes) {
+    // we need a timeout function here since the request might not be fully resolved until some point later
+    // this should be revisited at some point...
     timeout(function () {
       t.equal(calledNext, true)
+      t.equal(mockRes.statusCode, 200)
+
       clock.restore()
       t.end()
-    }, 2000)
+    }, 1000)
   })
 })

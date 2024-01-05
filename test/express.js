@@ -1,11 +1,8 @@
 import bodyParser from 'body-parser'
 import express    from 'express'
 import request    from 'supertest'
-import tap        from 'tap'
+import { test }   from 'tap'
 import verifier   from '../index.js'
-
-
-const { test } = tap
 
 
 test('with express.js and body-parser incorrectly mounted', function (t) {
@@ -18,7 +15,7 @@ test('with express.js and body-parser incorrectly mounted', function (t) {
     .post('/')
     .send({ x: 1 })
     .set('signaturecertchainurl', 'dummy')
-    .set('signature', 'aGVsbG8NCg==')
+    .set('signature-256', 'aGVsbG8NCg==')
     .end(function (err, res) {
       t.equal(res.statusCode, 400)
       t.same(res.body, {
