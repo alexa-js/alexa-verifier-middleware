@@ -19,6 +19,7 @@ export default function alexaVerifierMiddleware (req, res, next) {
   // other body parser middlewares
   req._body = true
   req.rawBody = ''
+
   req.on('data', function (data) {
     return req.rawBody += data
   })
@@ -33,8 +34,8 @@ export default function alexaVerifierMiddleware (req, res, next) {
       req.body = { }
     }
 
-    certUrl = req.headers.signaturecertchainurl
-    signature = req.headers.signature
+    certUrl = req.headers['signaturecertchainurl']
+    signature = req.headers['signature-256']
 
     verifier(certUrl, signature, req.rawBody, function (er) {
       if (er)

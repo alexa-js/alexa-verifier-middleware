@@ -1,3 +1,7 @@
+## 2.1.0
+* Updated to check against SHA-256 signature of request body (#47)
+
+
 ## 2.0.3
 * Remediates CVE-2021-3765
 

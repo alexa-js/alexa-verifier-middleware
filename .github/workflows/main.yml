@@ -21,14 +21,22 @@ jobs:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
+    # Specify which node versions should this module be tested against
+    strategy:
+      matrix:
+        node-version: [ 12, 14, 16, 18, 20 ]
+
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
 
       # Runs a single command using the runners shell
       - name: setup
-        run: npm install
+        run: npm ci
         
       # Runs a single command using the runners shell
       - name: tests
